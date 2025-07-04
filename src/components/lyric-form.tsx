@@ -29,6 +29,7 @@ const formSchema = z.object({
   topic: z.string().max(200).optional(),
   genre: z.string().optional(),
   language: z.string().optional(),
+  inspiredBy: z.string().optional(),
   spotifyUrl: z.string().url({ message: "Please enter a valid Spotify URL." }).optional().or(z.literal('')),
 }).refine(data => data.topic || data.spotifyUrl, {
   message: "Please provide either a topic or a Spotify URL.",
@@ -44,12 +45,32 @@ interface LyricFormProps {
 }
 
 const genres = [
-    "Pop", "Rock", "Hip-Hop", "R&B", "Country", "Electronic", "Jazz", "Blues", "Folk", "Indie"
+    "Pop", "Rock", "Hip-Hop", "R&B", "Country", "Electronic", "Jazz", "Blues", "Folk", "Indie", "Bollywood"
 ];
 
 const languages = [
-    "English", "Spanish", "French", "German", "Italian", "Portuguese", "Dutch", "Hindi", "Japanese", "Korean", "Mandarin"
+    "English", "Spanish", "French", "German", "Hindi", "Bengali", "Tamil", "Telugu", "Marathi", "Gujarati", "Kannada", "Malayalam", "Punjabi", "Odia", "Assamese", "Urdu"
 ];
+
+const singers = [
+    { value: "Kishore Kumar (Energetic, Yodeling)", label: "Kishore Kumar (Energetic, Yodeling)" },
+    { value: "Lata Mangeshkar (Melodious, Classical)", label: "Lata Mangeshkar (Melodious, Classical)" },
+    { value: "Asha Bhosle (Versatile, Peppy)", label: "Asha Bhosle (Versatile, Peppy)" },
+    { value: "Mohammed Rafi (Romantic, Soulful)", label: "Mohammed Rafi (Romantic, Soulful)" },
+    { value: "R.D. Burman (Experimental, Groovy)", label: "R.D. Burman (Experimental, Groovy)" },
+    { value: "Udit Narayan (Melodic, 90s Pop)", label: "Udit Narayan (Melodic, 90s Pop)" },
+    { value: "Alka Yagnik (Sweet, Romantic)", label: "Alka Yagnik (Sweet, Romantic)" },
+    { value: "Kumar Sanu (Nasal, 90s Romance)", label: "Kumar Sanu (Nasal, 90s Romance)" },
+    { value: "A.R. Rahman (Fusion, Innovative)", label: "A.R. Rahman (Fusion, Innovative)" },
+    { value: "Sonu Nigam (Versatile, Modern)", label: "Sonu Nigam (Versatile, Modern)" },
+    { value: "Shreya Ghoshal (Classical, Melodious)", label: "Shreya Ghoshal (Classical, Melodious)" },
+    { value: "Sunidhi Chauhan (Powerful, Energetic)", label: "Sunidhi Chauhan (Powerful, Energetic)" },
+    { value: "Arijit Singh (Soulful, Romantic)", label: "Arijit Singh (Soulful, Romantic)" },
+    { value: "Javed Akhtar (Poetic, Meaningful)", label: "Javed Akhtar (Poetic, Meaningful)" },
+    { value: "Gulzar (Metaphorical, Lyrical)", label: "Gulzar (Metaphorical, Lyrical)" },
+    { value: "Lucky Ali (Indie-Pop, Soulful)", label: "Lucky Ali (Indie-Pop, Soulful)" },
+];
+
 
 export function LyricForm({ onSubmit, isLoading }: LyricFormProps) {
     const form = useForm<FormData>({
@@ -100,6 +121,29 @@ export function LyricForm({ onSubmit, isLoading }: LyricFormProps) {
                                 <SelectContent>
                                     {genres.map(genre => (
                                         <SelectItem key={genre} value={genre}>{genre}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="inspiredBy"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Inspired By <span className="text-muted-foreground/80">(Optional)</span></FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!!watchSpotifyUrl}>
+                                <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a singer's style" />
+                                </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {singers.map(singer => (
+                                        <SelectItem key={singer.value} value={singer.value}>{singer.label}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
