@@ -15,6 +15,10 @@ import wav from 'wav';
 
 const GenerateAudioInputSchema = z.object({
   lyrics: z.string().describe('The lyrics to be converted to speech.'),
+  voice: z
+    .string()
+    .describe('The voice to use for the TTS conversion.')
+    .optional(),
 });
 export type GenerateAudioInput = z.infer<typeof GenerateAudioInputSchema>;
 
@@ -71,7 +75,7 @@ const generateAudioFlow = ai.defineFlow(
         responseModalities: ['AUDIO'],
         speechConfig: {
           voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: 'Algenib' },
+            prebuiltVoiceConfig: { voiceName: input.voice || 'Algenib' },
           },
         },
       },

@@ -3,28 +3,35 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, Copy, Loader2, Mic, Drum } from "lucide-react";
+import { Check, Copy, Loader2, Mic } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import { WaveformAudioPlayer } from "./waveform-audio-player";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 interface LyricDisplayProps {
   lyrics: string;
   audioDataUri?: string;
-  beatAudioDataUri?: string;
   onGenerateAcapella: (lyrics: string) => void;
   isGeneratingAcapella: boolean;
-  onGenerateBeat: () => void;
-  isGeneratingBeat: boolean;
+  selectedVoice: string;
+  onVoiceChange: (voice: string) => void;
 }
+
+const voices = [
+    { value: 'Algenib', label: 'Narrator (Male)' },
+    { value: 'Achernar', label: 'Promoter (Female)' },
+    { value: 'Sirius', label: 'Friendly (Male)' },
+    { value: 'Vega', label: 'Calm (Female)' },
+    { value: 'Canopus', label: 'Storyteller (Male)' },
+];
 
 export function LyricDisplay({
   lyrics,
   audioDataUri,
-  beatAudioDataUri,
   onGenerateAcapella,
   isGeneratingAcapella,
-  onGenerateBeat,
-  isGeneratingBeat,
+  selectedVoice,
+  onVoiceChange,
 }: LyricDisplayProps) {
   const [hasCopied, setHasCopied] = useState(false);
 
@@ -91,52 +98,40 @@ export function LyricDisplay({
                 <WaveformAudioPlayer url={audioDataUri} />
               </div>
             ) : (
-              <Button
-                onClick={() => onGenerateAcapella(lyrics)}
-                disabled={isGeneratingAcapella || isGeneratingBeat}
-                className="w-full"
-              >
-                {isGeneratingAcapella ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Generating Acapella...
-                  </>
-                ) : (
-                  <>
-                    <Mic className="mr-2 h-5 w-5" />
-                    Generate Acapella
-                  </>
-                )}
-              </Button>
-            )}
-          </div>
-          <div>
-            {beatAudioDataUri ? (
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium text-muted-foreground">
-                  Beat
-                </h4>
-                <WaveformAudioPlayer url={beatAudioDataUri} />
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-grow space-y-2">
+                  <h4 className="text-sm font-medium text-muted-foreground">Vocal Style</h4>
+                  <Select value={selectedVoice} onValueChange={onVoiceChange} disabled={isGeneratingAcapella}>
+                      <SelectTrigger>
+                          <SelectValue placeholder="Select a voice" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          {voices.map((voice) => (
+                              <SelectItem key={voice.value} value={voice.value}>{voice.label}</SelectItem>
+                          ))}
+                      </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex-shrink-0 sm:self-end">
+                  <Button
+                    onClick={() => onGenerateAcapella(lyrics)}
+                    disabled={isGeneratingAcapella}
+                    className="w-full"
+                  >
+                    {isGeneratingAcapella ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Mic className="mr-2 h-5 w-5" />
+                        Generate Acapella
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
-            ) : (
-              <Button
-                onClick={onGenerateBeat}
-                disabled={isGeneratingBeat || isGeneratingAcapella}
-                className="w-full"
-                variant="secondary"
-              >
-                {isGeneratingBeat ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Generating Beat...
-                  </>
-                ) : (
-                  <>
-                    <Drum className="mr-2 h-5 w-5" />
-                    Generate Beat
-                  </>
-                )}
-              </Button>
             )}
           </div>
         </div>

@@ -4,8 +4,7 @@ import {
   generateLyrics,
   type GenerateLyricsInput,
 } from '@/ai/flows/lyric-generation';
-import { generateAudio } from '@/ai/flows/tts-flow';
-import { generateBeat, type GenerateBeatInput } from '@/ai/flows/beat-generation';
+import { generateAudio, type GenerateAudioInput } from '@/ai/flows/tts-flow';
 
 export type LyricGenerationResult = {
   lyrics?: string;
@@ -15,11 +14,6 @@ export type LyricGenerationResult = {
 
 export type AcapellaGenerationResult = {
   audioDataUri?: string;
-  error?: string;
-};
-
-export type BeatGenerationResult = {
-  beatAudioDataUri?: string;
   error?: string;
 };
 
@@ -50,12 +44,15 @@ export async function handleGenerateLyrics(
 }
 
 export async function handleGenerateAcapella(
-  lyrics: string
+  data: GenerateAudioInput
 ): Promise<AcapellaGenerationResult> {
   try {
     // Remove section headers like [Verse], [Chorus] before sending to TTS
-    const cleanedLyrics = lyrics.replace(/\[.*?\]\n?/g, '');
-    const audioResult = await generateAudio({ lyrics: cleanedLyrics });
+    const cleanedLyrics = data.lyrics.replace(/\[.*?\]\n?/g, '');
+    const audioResult = await generateAudio({
+      lyrics: cleanedLyrics,
+      voice: data.voice,
+    });
     return {
       audioDataUri: audioResult.audioDataUri,
     };
@@ -67,26 +64,6 @@ export async function handleGenerateAcapella(
         : 'An unknown error occurred.';
     return {
       error: `An error occurred while generating the acapella: ${errorMessage}`,
-    };
-  }
-}
-
-export async function handleGenerateBeat(
-  data: GenerateBeatInput
-): Promise<BeatGenerationResult> {
-  try {
-    const beatResult = await generateBeat(data);
-    return {
-      beatAudioDataUri: beatResult.beatAudioDataUri,
-    };
-  } catch (beatError) {
-    console.error('Failed to generate beat:', beatError);
-    const errorMessage =
-      beatError instanceof Error
-        ? beatError.message
-        : 'An unknown error occurred.';
-    return {
-      error: `An error occurred while generating the beat: ${errorMessage}`,
     };
   }
 }
