@@ -13,15 +13,24 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { Loader2, Wand2 } from "lucide-react";
 
 const formSchema = z.object({
-  topic: z.string().min(2, {
-    message: "Topic must be at least 2 characters.",
+  topic: z.string().min(3, {
+    message: "Topic must be at least 3 characters.",
+  }).max(200, {
+    message: "Topic must not be longer than 200 characters.",
   }),
-  genre: z.string().min(2, {
-    message: "Genre must be at least 2 characters.",
+  genre: z.string({
+    required_error: "Please select a genre.",
   }),
 });
 
@@ -32,12 +41,15 @@ interface LyricFormProps {
     isLoading: boolean;
 }
 
+const genres = [
+    "Pop", "Rock", "Hip-Hop", "R&B", "Country", "Electronic", "Jazz", "Blues", "Folk", "Indie"
+];
+
 export function LyricForm({ onSubmit, isLoading }: LyricFormProps) {
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             topic: "",
-            genre: "",
         },
     });
 
@@ -49,9 +61,13 @@ export function LyricForm({ onSubmit, isLoading }: LyricFormProps) {
                     name="topic"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Topic</FormLabel>
+                            <FormLabel>What should the song be about?</FormLabel>
                             <FormControl>
-                                <Input placeholder="e.g., Summer romance" {...field} />
+                                <Textarea 
+                                    placeholder="e.g., A road trip with friends, a lost love, finding a stray cat..." 
+                                    className="resize-none"
+                                    {...field} 
+                                />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -62,17 +78,35 @@ export function LyricForm({ onSubmit, isLoading }: LyricFormProps) {
                     name="genre"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Genre</FormLabel>
-                            <FormControl>
-                                <Input placeholder="e.g., Pop, Rock, Country" {...field} />
-                            </FormControl>
+                            <FormLabel>Music Genre</FormLabel>
+                             <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a genre" />
+                                </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {genres.map(genre => (
+                                        <SelectItem key={genre} value={genre}>{genre}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
-                <Button type="submit" disabled={isLoading} className="w-full bg-accent hover:bg-accent/90">
-                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {isLoading ? "Generating..." : "Generate Lyrics"}
+                <Button type="submit" disabled={isLoading} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg py-6">
+                    {isLoading ? (
+                        <>
+                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                            Crafting your song...
+                        </>
+                    ) : (
+                        <>
+                            <Wand2 className="mr-2 h-5 w-5" />
+                            Generate Lyrics
+                        </>
+                    )}
                 </Button>
             </form>
         </Form>
