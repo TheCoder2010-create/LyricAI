@@ -25,6 +25,7 @@ import {
 import { Loader2, Wand2, Lock, Sparkles } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 
 const formSchema = z.object({
   topic: z.string().max(200).optional(),
