@@ -82,7 +82,7 @@ const generateBeatFlow = ai.defineFlow(
   async (input) => {
     // 1. Generate the beatbox text pattern
     const beatboxResult = await beatboxPrompt(input);
-    const beatboxPattern = beatboxResult.output?.text;
+    const beatboxPattern = beatboxResult.text;
 
     if (!beatboxPattern) {
       throw new Error('Failed to generate a beatbox pattern.');
