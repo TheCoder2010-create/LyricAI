@@ -202,13 +202,15 @@ export default function Home() {
               <Sparkles className="h-6 w-6 text-yellow-400" />
               Upgrade to LyricAI Pro
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-base pt-4">
-              Unlock powerful features to take your songwriting to the next level:
-              <ul className="list-disc pl-5 mt-4 space-y-2">
-                <li><span className="font-bold">AI Album Art Generator:</span> Turn your photos into unique album covers.</li>
-                <li><span className="font-bold">Spotify Song Inspiration:</span> Get lyric ideas from your favorite tracks.</li>
-                <li><span className="font-bold">AI Songwriting Coach:</span> Receive analysis on your song's structure and theme.</li>
-              </ul>
+            <AlertDialogDescription className="text-base pt-4" asChild>
+              <div>
+                Unlock powerful features to take your songwriting to the next level:
+                <ul className="list-disc pl-5 mt-4 space-y-2">
+                  <li><span className="font-bold">AI Album Art Generator:</span> Turn your photos into unique album covers.</li>
+                  <li><span className="font-bold">Spotify Song Inspiration:</span> Get lyric ideas from your favorite tracks.</li>
+                  <li><span className="font-bold">AI Songwriting Coach:</span> Receive analysis on your song's structure and theme.</li>
+                </ul>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
