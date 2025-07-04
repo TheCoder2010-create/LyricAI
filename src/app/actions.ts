@@ -14,7 +14,15 @@ export async function handleGenerateLyrics(
   data: GenerateLyricsInput
 ): Promise<LyricGenerationResult> {
   try {
-    const result = await generateLyrics(data);
+    const inputData = { ...data };
+
+    // If spotifyUrl is an empty string, delete it from the object so it doesn't
+    // fail Zod validation in the Genkit flow which expects a valid URL or undefined.
+    if (inputData.spotifyUrl === '') {
+      delete inputData.spotifyUrl;
+    }
+
+    const result = await generateLyrics(inputData);
     if (result.lyrics) {
       return { lyrics: result.lyrics };
     }
