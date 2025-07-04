@@ -16,6 +16,7 @@ const GenerateLyricsInputSchema = z.object({
   topic: z.string().describe('The topic of the song lyrics.').optional(),
   genre: z.string().describe('The preferred music genre for the song lyrics.').optional(),
   spotifyUrl: z.string().url('Please provide a valid Spotify URL.').describe('A spotify URL to a song to use as inspiration.').optional(),
+  generateStructure: z.boolean().optional().describe('Whether to generate a full song structure (verse, chorus, etc.).'),
 });
 export type GenerateLyricsInput = z.infer<typeof GenerateLyricsInputSchema>;
 
@@ -35,7 +36,11 @@ const prompt = ai.definePrompt({
   tools: [searchSpotifyTool],
   prompt: `You are a song lyric generator. 
   
-  Generate song lyrics based on the user's request. 
+  {{#if generateStructure}}
+  Generate song lyrics with a clear structure including [Verse], [Chorus], and [Bridge] sections.
+  {{else}}
+  Generate song lyrics based on the user's request.
+  {{/if}}
   
   If the user provides a Spotify URL, you MUST use the searchSpotify tool to get details about the song and use that as inspiration for the topic, genre, and style of the lyrics.
   
