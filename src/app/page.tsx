@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Loader2, Terminal, Wand2, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { handleGenerateLyrics, type LyricGenerationResult, createCheckoutSession } from '@/app/actions';
+import { handleGenerateLyrics, type LyricGenerationResult } from '@/app/actions';
 import { LyricForm } from '@/components/lyric-form';
 import { LyricDisplay } from '@/components/lyric-display';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -59,18 +59,14 @@ export default function Home() {
   
   const handleUpgrade = async () => {
     setIsUpgrading(true);
-    const { url, error } = await createCheckoutSession();
-
-    if (error) {
-      setResult({ error: `Stripe Error: ${error}` });
-      setShowProDialog(false);
-      setIsUpgrading(false);
-      return;
-    }
-
-    if (url) {
-      window.location.href = url;
-    }
+    
+    // Simulate API call to a payment provider like PhonePe
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // On successful "payment", redirect to unlock pro features.
+    // In a real app, this would be a callback from your payment provider.
+    const origin = window.location.origin;
+    window.location.href = `${origin}/?pro=true`;
   };
 
 
@@ -137,11 +133,11 @@ export default function Home() {
               Upgrade to LyricAI Pro
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Unlock advanced features like full song structure generation, exclusive genres, and priority support. Take your songwriting to the next level!
+              Unlock advanced features like full song structure generation and priority support for just ₹150. Pay securely with PhonePe.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isUpgrading}>Maybe Later</AlertDialogCancel>
+            <AlertDialogCancel disabled={isUpgrading} onClick={() => window.location.href = `/?canceled=true`}>Maybe Later</AlertDialogCancel>
             <AlertDialogAction onClick={handleUpgrade} disabled={isUpgrading}>
               {isUpgrading ? (
                   <>
@@ -149,7 +145,7 @@ export default function Home() {
                       Redirecting...
                   </>
               ) : (
-                  'Upgrade Now'
+                  'Upgrade for ₹150'
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
