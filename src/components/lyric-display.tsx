@@ -3,21 +3,27 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, Copy, Loader2, Mic } from "lucide-react";
+import { Check, Copy, Loader2, Mic, Drum } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 
 interface LyricDisplayProps {
   lyrics: string;
   audioDataUri?: string;
+  beatAudioDataUri?: string;
   onGenerateAcapella: (lyrics: string) => void;
   isGeneratingAcapella: boolean;
+  onGenerateBeat: () => void;
+  isGeneratingBeat: boolean;
 }
 
 export function LyricDisplay({
   lyrics,
   audioDataUri,
+  beatAudioDataUri,
   onGenerateAcapella,
   isGeneratingAcapella,
+  onGenerateBeat,
+  isGeneratingBeat,
 }: LyricDisplayProps) {
   const [hasCopied, setHasCopied] = useState(false);
 
@@ -83,33 +89,70 @@ export function LyricDisplay({
         </Button>
       </CardHeader>
       <CardContent>
-        {audioDataUri ? (
-          <div className="mb-4">
-            <audio controls src={audioDataUri} className="w-full">
-              Your browser does not support the audio element.
-            </audio>
+        <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            {audioDataUri ? (
+              <div className="space-y-1">
+                <h4 className="text-sm font-medium text-muted-foreground">
+                  Acapella
+                </h4>
+                <audio controls src={audioDataUri} className="w-full">
+                  Your browser does not support the audio element.
+                </audio>
+              </div>
+            ) : (
+              <Button
+                onClick={() => onGenerateAcapella(lyrics)}
+                disabled={isGeneratingAcapella || isGeneratingBeat}
+                className="w-full"
+              >
+                {isGeneratingAcapella ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Generating Acapella...
+                  </>
+                ) : (
+                  <>
+                    <Mic className="mr-2 h-5 w-5" />
+                    Generate Acapella
+                  </>
+                )}
+              </Button>
+            )}
           </div>
-        ) : (
-          <div className="mb-4">
-            <Button
-              onClick={() => onGenerateAcapella(lyrics)}
-              disabled={isGeneratingAcapella}
-              className="w-full"
-            >
-              {isGeneratingAcapella ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Generating Acapella...
-                </>
-              ) : (
-                <>
-                  <Mic className="mr-2 h-5 w-5" />
-                  Convert to Voice Acapella
-                </>
-              )}
-            </Button>
+          <div>
+            {beatAudioDataUri ? (
+              <div className="space-y-1">
+                <h4 className="text-sm font-medium text-muted-foreground">
+                  Beat
+                </h4>
+                <audio controls src={beatAudioDataUri} className="w-full">
+                  Your browser does not support the audio element.
+                </audio>
+              </div>
+            ) : (
+              <Button
+                onClick={onGenerateBeat}
+                disabled={isGeneratingBeat || isGeneratingAcapella}
+                className="w-full"
+                variant="secondary"
+              >
+                {isGeneratingBeat ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Generating Beat...
+                  </>
+                ) : (
+                  <>
+                    <Drum className="mr-2 h-5 w-5" />
+                    Generate Beat
+                  </>
+                )}
+              </Button>
+            )}
           </div>
-        )}
+        </div>
+
         <ScrollArea className="h-[40vh] pr-4">
           <div className="whitespace-pre-wrap font-body text-base md:text-lg leading-relaxed text-foreground/90">
             {formatLyrics(lyrics)}

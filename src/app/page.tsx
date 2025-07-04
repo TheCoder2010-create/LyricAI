@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   handleGenerateLyrics,
   handleGenerateAcapella,
+  handleGenerateBeat,
   type LyricGenerationResult,
 } from '@/app/actions';
 import { LyricForm } from '@/components/lyric-form';
@@ -21,27 +22,70 @@ export default function Home() {
     undefined
   );
   const [isGeneratingAcapella, setIsGeneratingAcapella] = useState(false);
+  const [beatAudioDataUri, setBeatAudioDataUri] = useState<
+    string | undefined
+  >(undefined);
+  const [isGeneratingBeat, setIsGeneratingBeat] = useState(false);
+  const [songContext, setSongContext] = useState<{
+    lyrics?: string;
+    genre?: string;
+    topic?: string;
+  }>({});
 
   const onGenerate = async (data: GenerateLyricsInput) => {
     setIsLoading(true);
     setResult(null);
     setAudioDataUri(undefined);
+    setBeatAudioDataUri(undefined);
+    setSongContext({});
+
     const generationResult = await handleGenerateLyrics(data);
     setResult(generationResult);
+    if (generationResult.lyrics) {
+      setSongContext({
+        lyrics: generationResult.lyrics,
+        genre: generationResult.genre,
+        topic: data.topic,
+      });
+    }
     setIsLoading(false);
   };
 
   const onGenerateAcapella = async (lyrics: string) => {
     setIsGeneratingAcapella(true);
+    setResult({ ...result, error: undefined });
     const acapellaResult = await handleGenerateAcapella(lyrics);
     if (acapellaResult.audioDataUri) {
       setAudioDataUri(acapellaResult.audioDataUri);
     }
     if (acapellaResult.error) {
-      // Preserve existing lyrics when showing a new error
-      setResult({ lyrics: result?.lyrics, error: acapellaResult.error });
+      setResult({ lyrics: songContext.lyrics, error: acapellaResult.error });
     }
     setIsGeneratingAcapella(false);
+  };
+
+  const onGenerateBeat = async () => {
+    if (!songContext.genre) {
+      setResult({
+        ...result,
+        error:
+          'A genre is required to generate a beat. Please specify one and generate lyrics again.',
+      });
+      return;
+    }
+    setIsGeneratingBeat(true);
+    setResult({ ...result, error: undefined });
+    const beatResult = await handleGenerateBeat({
+      genre: songContext.genre,
+      topic: songContext.topic,
+    });
+    if (beatResult.beatAudioDataUri) {
+      setBeatAudioDataUri(beatResult.beatAudioDataUri);
+    }
+    if (beatResult.error) {
+      setResult({ lyrics: songContext.lyrics, error: beatResult.error });
+    }
+    setIsGeneratingBeat(false);
   };
 
   return (
@@ -97,8 +141,11 @@ export default function Home() {
               <LyricDisplay
                 lyrics={result.lyrics}
                 audioDataUri={audioDataUri}
+                beatAudioDataUri={beatAudioDataUri}
                 onGenerateAcapella={onGenerateAcapella}
                 isGeneratingAcapella={isGeneratingAcapella}
+                onGenerateBeat={onGenerateBeat}
+                isGeneratingBeat={isGeneratingBeat}
               />
             )}
           </div>

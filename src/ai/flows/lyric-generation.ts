@@ -21,6 +21,7 @@ export type GenerateLyricsInput = z.infer<typeof GenerateLyricsInputSchema>;
 
 const GenerateLyricsOutputSchema = z.object({
   lyrics: z.string().describe('The generated song lyrics.'),
+  genre: z.string().describe("The resolved genre of the song. If a genre was provided in the request, use that. If a Spotify URL was used, use the genre returned by the tool."),
 });
 export type GenerateLyricsOutput = z.infer<typeof GenerateLyricsOutputSchema>;
 
