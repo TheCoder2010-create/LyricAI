@@ -1,16 +1,14 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, type User } from 'firebase/auth';
-import { app } from '@/lib/firebase';
+import { onAuthStateChanged, signInWithPopup, signOut, type User } from 'firebase/auth';
+import { auth, googleProvider, isFirebaseEnabled } from '@/lib/firebase';
 import { useToast } from './use-toast';
-
-const auth = getAuth(app);
-const googleProvider = new GoogleAuthProvider();
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  isFirebaseEnabled: boolean;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -23,6 +21,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
+    if (!isFirebaseEnabled || !auth) {
+      setLoading(false);
+      return;
+    }
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
@@ -31,6 +33,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithGoogle = async () => {
+    if (!isFirebaseEnabled || !auth || !googleProvider) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Not Configured",
+        description: "Please add your Firebase project credentials to the .env file.",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       await signInWithPopup(auth, googleProvider);
@@ -41,12 +52,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Authentication Error",
         description: "Failed to sign in with Google. Please try again.",
       });
-    } finally {
-        // onAuthStateChanged will set loading to false
+      setLoading(false);
     }
   };
 
   const logOut = async () => {
+    if (!isFirebaseEnabled || !auth) return;
+
     setLoading(true);
     try {
       await signOut(auth);
@@ -57,14 +69,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Sign Out Error",
         description: "Failed to sign out. Please try again.",
       });
-    } finally {
-        // onAuthStateChanged will set loading to false
     }
   };
 
   const value = {
     user,
     loading,
+    isFirebaseEnabled,
     signInWithGoogle,
     signOut: logOut,
   };

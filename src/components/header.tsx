@@ -15,7 +15,7 @@ import {
 import { Skeleton } from './ui/skeleton';
 
 export function Header() {
-  const { user, loading, signInWithGoogle, signOut } = useAuth();
+  const { user, loading, signInWithGoogle, signOut, isFirebaseEnabled } = useAuth();
 
   const renderUserMenu = () => {
     if (loading) {
@@ -53,7 +53,7 @@ export function Header() {
     }
 
     return (
-      <Button onClick={signInWithGoogle}>
+      <Button onClick={signInWithGoogle} disabled={!isFirebaseEnabled}>
         Sign In with Google
       </Button>
     );

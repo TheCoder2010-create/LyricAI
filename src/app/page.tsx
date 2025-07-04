@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 export default function Home() {
   const [result, setResult] = useState<LyricGenerationResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { user, loading, signInWithGoogle } = useAuth();
+  const { user, loading, signInWithGoogle, isFirebaseEnabled } = useAuth();
 
   const onGenerate = async (data: GenerateLyricsInput) => {
     setIsLoading(true);
@@ -44,10 +44,20 @@ export default function Home() {
           </CardHeader>
           <CardContent className="text-center space-y-4">
             <p className="text-muted-foreground">Please sign in to start creating your own song lyrics.</p>
-            <Button onClick={signInWithGoogle} size="lg">
+            <Button onClick={signInWithGoogle} size="lg" disabled={!isFirebaseEnabled}>
               <Wand2 className="mr-2 h-5 w-5" />
               Sign In to Get Started
             </Button>
+            {!isFirebaseEnabled && (
+                <Alert variant="destructive" className="mt-4 text-left">
+                    <Terminal className="h-4 w-4" />
+                    <AlertTitle>Authentication Not Configured</AlertTitle>
+                    <AlertDescription>
+                        <p>Sign-in is disabled because Firebase is not configured.</p>
+                        <p className="mt-2 text-xs">Please add your Firebase project credentials to the <code>.env</code> file to enable authentication.</p>
+                    </AlertDescription>
+                </Alert>
+            )}
           </CardContent>
         </Card>
       );
