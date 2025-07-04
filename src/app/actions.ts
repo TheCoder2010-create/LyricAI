@@ -5,6 +5,10 @@ import {
   type GenerateLyricsInput,
 } from '@/ai/flows/lyric-generation';
 import { generateAudio, type GenerateAudioInput } from '@/ai/flows/tts-flow';
+import {
+  generateAlbumArt,
+  type GenerateAlbumArtInput,
+} from '@/ai/flows/album-art-generation';
 
 export type LyricGenerationResult = {
   lyrics?: string;
@@ -14,6 +18,11 @@ export type LyricGenerationResult = {
 
 export type AcapellaGenerationResult = {
   audioDataUri?: string;
+  error?: string;
+};
+
+export type AlbumArtGenerationResult = {
+  albumArtDataUri?: string;
   error?: string;
 };
 
@@ -64,6 +73,24 @@ export async function handleGenerateAcapella(
         : 'An unknown error occurred.';
     return {
       error: `An error occurred while generating the acapella: ${errorMessage}`,
+    };
+  }
+}
+
+export async function handleGenerateAlbumArt(
+  data: GenerateAlbumArtInput
+): Promise<AlbumArtGenerationResult> {
+  try {
+    const result = await generateAlbumArt(data);
+    return {
+      albumArtDataUri: result.albumArtDataUri,
+    };
+  } catch (e) {
+    console.error(e);
+    const errorMessage =
+      e instanceof Error ? e.message : 'An unknown error occurred.';
+    return {
+      error: `An error occurred while generating album art: ${errorMessage}`,
     };
   }
 }

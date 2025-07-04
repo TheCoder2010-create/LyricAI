@@ -7,6 +7,7 @@ import { Check, Copy, Loader2, Mic } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import { WaveformAudioPlayer } from "./waveform-audio-player";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Separator } from "./ui/separator";
 
 interface LyricDisplayProps {
   lyrics: string;
@@ -88,8 +89,7 @@ export function LyricDisplay({
         </Button>
       </CardHeader>
       <CardContent>
-        <div className="mb-4 grid grid-cols-1 gap-6">
-          <div>
+        <div className="mb-4 space-y-6">
             {audioDataUri ? (
               <div className="space-y-2">
                 <h4 className="text-sm font-medium text-muted-foreground">
@@ -133,8 +133,9 @@ export function LyricDisplay({
                 </div>
               </div>
             )}
-          </div>
         </div>
+
+        <Separator className="my-6"/>
 
         <ScrollArea className="h-[40vh] pr-4">
           <div className="whitespace-pre-wrap font-body text-base md:text-lg leading-relaxed text-foreground/90">

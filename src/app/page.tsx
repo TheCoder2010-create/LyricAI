@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   handleGenerateLyrics,
   handleGenerateAcapella,
+  handleGenerateAlbumArt,
   type LyricGenerationResult,
 } from '@/app/actions';
 import { LyricForm } from '@/components/lyric-form';
@@ -13,6 +14,7 @@ import { LyricDisplay } from '@/components/lyric-display';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import type { GenerateLyricsInput } from '@/ai/flows/lyric-generation';
 import { Header } from '@/components/header';
+import { AlbumArtCreator } from '@/components/album-art-creator';
 
 export default function Home() {
   const [result, setResult] = useState<LyricGenerationResult | null>(null);
@@ -28,11 +30,19 @@ export default function Home() {
   }>({});
   const [selectedVoice, setSelectedVoice] = useState('Algenib');
 
+  // New state for album art
+  const [albumArtResult, setAlbumArtResult] = useState<{
+    dataUri?: string;
+    error?: string;
+  }>({});
+  const [isGeneratingArt, setIsGeneratingArt] = useState(false);
+
   const onGenerate = async (data: GenerateLyricsInput) => {
     setIsLoading(true);
     setResult(null);
     setAudioDataUri(undefined);
     setSongContext({});
+    setAlbumArtResult({}); // Reset album art on new song
 
     const generationResult = await handleGenerateLyrics(data);
     setResult(generationResult);
@@ -48,7 +58,7 @@ export default function Home() {
 
   const onGenerateAcapella = async (lyrics: string) => {
     setIsGeneratingAcapella(true);
-    setResult({ ...result, error: undefined });
+    setResult({ ...result, error: undefined }); // Clear previous errors
     const acapellaResult = await handleGenerateAcapella({
       lyrics,
       voice: selectedVoice,
@@ -62,11 +72,34 @@ export default function Home() {
     setIsGeneratingAcapella(false);
   };
 
+  const onGenerateAlbumArt = async (imageDataUri: string) => {
+    if (!songContext.topic && !songContext.genre) {
+      // Use main error display for this
+      setResult({ ...result, error: 'Cannot generate art without song context (topic or genre).' });
+      return;
+    }
+    setIsGeneratingArt(true);
+    setAlbumArtResult({});
+    setResult({ ...result, error: undefined }); // Clear previous errors
+
+    const prompt = `A song about ${songContext.topic || 'an unknown topic'} in the ${songContext.genre || 'general pop'} style.`;
+    
+    const res = await handleGenerateAlbumArt({ imageDataUri, prompt });
+
+    if (res.albumArtDataUri) {
+      setAlbumArtResult({ dataUri: res.albumArtDataUri });
+    }
+    if (res.error) {
+      setResult({ ...result, error: res.error });
+    }
+    setIsGeneratingArt(false);
+  };
+
   return (
     <>
       <div className="flex flex-col min-h-screen bg-background">
         <Header />
-        <main className="relative flex flex-grow flex-col items-center justify-center overflow-hidden px-4 py-12 sm:px-6 lg:px-8">
+        <main className="relative flex flex-grow flex-col items-center justify-start pt-12 pb-24 overflow-y-auto px-4 sm:px-6 lg:px-8">
           <div
             className="absolute inset-0 -z-10 h-full w-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] dark:bg-[radial-gradient(#ffffff2e_1px,transparent_1px)]"
             aria-hidden="true"
@@ -112,6 +145,7 @@ export default function Home() {
             )}
 
             {result?.lyrics && (
+              <>
               <LyricDisplay
                 lyrics={result.lyrics}
                 audioDataUri={audioDataUri}
@@ -120,6 +154,12 @@ export default function Home() {
                 selectedVoice={selectedVoice}
                 onVoiceChange={setSelectedVoice}
               />
+              <AlbumArtCreator 
+                onGenerate={onGenerateAlbumArt}
+                isGenerating={isGeneratingArt}
+                result={albumArtResult}
+              />
+              </>
             )}
           </div>
         </main>
