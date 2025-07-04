@@ -8,9 +8,10 @@ import { ScrollArea } from "./ui/scroll-area";
 
 interface LyricDisplayProps {
     lyrics: string;
+    audioDataUri?: string;
 }
 
-export function LyricDisplay({ lyrics }: LyricDisplayProps) {
+export function LyricDisplay({ lyrics, audioDataUri }: LyricDisplayProps) {
     const [hasCopied, setHasCopied] = useState(false);
     
     const [isMounted, setIsMounted] = useState(false);
@@ -64,7 +65,14 @@ export function LyricDisplay({ lyrics }: LyricDisplayProps) {
                 </Button>
             </CardHeader>
             <CardContent>
-                <ScrollArea className="h-[50vh] pr-4">
+                {audioDataUri && (
+                  <div className="mb-4">
+                    <audio controls src={audioDataUri} className="w-full">
+                      Your browser does not support the audio element.
+                    </audio>
+                  </div>
+                )}
+                <ScrollArea className="h-[45vh] pr-4">
                     <div className="whitespace-pre-wrap font-body text-base md:text-lg leading-relaxed text-foreground/90">
                         {formatLyrics(lyrics)}
                     </div>

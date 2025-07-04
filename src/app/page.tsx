@@ -70,7 +70,7 @@ export default function Home() {
             )}
 
             {result?.lyrics && (
-                <LyricDisplay lyrics={result.lyrics} />
+                <LyricDisplay lyrics={result.lyrics} audioDataUri={result.audioDataUri} />
             )}
           </div>
         </main>
