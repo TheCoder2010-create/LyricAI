@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, Copy } from "lucide-react";
+import { ScrollArea } from "./ui/scroll-area";
 
 interface LyricDisplayProps {
     lyrics: string;
@@ -51,7 +52,7 @@ export function LyricDisplay({ lyrics }: LyricDisplayProps) {
     }
 
     return (
-        <Card className="w-full animate-in fade-in-0 duration-1000 shadow-2xl border border-primary/20 bg-card/60 backdrop-blur-xl">
+        <Card className="w-full animate-in fade-in-0 slide-in-from-bottom-10 duration-700 ease-out shadow-2xl border border-primary/20 bg-card/60 backdrop-blur-xl">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="font-headline text-2xl">Your Masterpiece</CardTitle>
                 <Button variant="ghost" size="icon" onClick={handleCopy} aria-label="Copy lyrics">
@@ -63,9 +64,11 @@ export function LyricDisplay({ lyrics }: LyricDisplayProps) {
                 </Button>
             </CardHeader>
             <CardContent>
-                <div className="whitespace-pre-wrap font-body text-base md:text-lg leading-relaxed text-foreground/90 max-h-[50vh] overflow-y-auto pr-4">
-                    {formatLyrics(lyrics)}
-                </div>
+                <ScrollArea className="h-[50vh] pr-4">
+                    <div className="whitespace-pre-wrap font-body text-base md:text-lg leading-relaxed text-foreground/90">
+                        {formatLyrics(lyrics)}
+                    </div>
+                </ScrollArea>
             </CardContent>
         </Card>
     );
