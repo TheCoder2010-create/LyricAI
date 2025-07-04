@@ -53,7 +53,9 @@ export async function handleGenerateAcapella(
   lyrics: string
 ): Promise<AcapellaGenerationResult> {
   try {
-    const audioResult = await generateAudio({ lyrics });
+    // Remove section headers like [Verse], [Chorus] before sending to TTS
+    const cleanedLyrics = lyrics.replace(/\[.*?\]\n?/g, '');
+    const audioResult = await generateAudio({ lyrics: cleanedLyrics });
     return {
       audioDataUri: audioResult.audioDataUri,
     };

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, Copy, Loader2, Mic, Drum } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
+import { WaveformAudioPlayer } from "./waveform-audio-player";
 
 interface LyricDisplayProps {
   lyrics: string;
@@ -26,11 +27,6 @@ export function LyricDisplay({
   isGeneratingBeat,
 }: LyricDisplayProps) {
   const [hasCopied, setHasCopied] = useState(false);
-
-  const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(lyrics);
@@ -65,10 +61,6 @@ export function LyricDisplay({
     });
   };
 
-  if (!isMounted) {
-    return null;
-  }
-
   return (
     <Card className="w-full animate-in fade-in-0 slide-in-from-bottom-10 duration-700 ease-out shadow-2xl border border-primary/20 bg-card/60 backdrop-blur-xl">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -89,16 +81,14 @@ export function LyricDisplay({
         </Button>
       </CardHeader>
       <CardContent>
-        <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="mb-4 grid grid-cols-1 gap-6">
           <div>
             {audioDataUri ? (
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <h4 className="text-sm font-medium text-muted-foreground">
                   Acapella
                 </h4>
-                <audio controls src={audioDataUri} className="w-full">
-                  Your browser does not support the audio element.
-                </audio>
+                <WaveformAudioPlayer url={audioDataUri} />
               </div>
             ) : (
               <Button
@@ -122,13 +112,11 @@ export function LyricDisplay({
           </div>
           <div>
             {beatAudioDataUri ? (
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <h4 className="text-sm font-medium text-muted-foreground">
                   Beat
                 </h4>
-                <audio controls src={beatAudioDataUri} className="w-full">
-                  Your browser does not support the audio element.
-                </audio>
+                <WaveformAudioPlayer url={beatAudioDataUri} />
               </div>
             ) : (
               <Button
