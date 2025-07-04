@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { Loader2, Terminal, Wand2, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { Loader2, Terminal, Wand2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { handleGenerateLyrics, type LyricGenerationResult } from '@/app/actions';
 import { LyricForm } from '@/components/lyric-form';
@@ -10,44 +9,10 @@ import { LyricDisplay } from '@/components/lyric-display';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import type { GenerateLyricsInput } from '@/ai/flows/lyric-generation';
 import { Header } from '@/components/header';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { useToast } from '@/hooks/use-toast';
 
 export default function Home() {
   const [result, setResult] = useState<LyricGenerationResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isUpgrading, setIsUpgrading] = useState(false);
-  const [showProDialog, setShowProDialog] = useState(false);
-  const { toast } = useToast();
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    if (searchParams.get('pro') === 'true') {
-      toast({
-        title: "You're a Pro now!",
-        description: "Welcome to LyricAI Pro. You can now generate full song structures.",
-      });
-      window.history.replaceState(null, '', '/');
-    }
-
-    if (searchParams.get('canceled') === 'true') {
-      toast({
-          title: "Upgrade Canceled",
-          description: "Your upgrade was canceled. You can upgrade to Pro at any time.",
-          variant: 'destructive',
-      });
-      window.history.replaceState(null, '', '/');
-    }
-  }, [searchParams, toast]);
 
   const onGenerate = async (data: GenerateLyricsInput) => {
     setIsLoading(true);
@@ -56,19 +21,6 @@ export default function Home() {
     setResult(generationResult);
     setIsLoading(false);
   };
-  
-  const handleUpgrade = async () => {
-    setIsUpgrading(true);
-    
-    // Simulate API call to a payment provider like PhonePe
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // On successful "payment", redirect to unlock pro features.
-    // In a real app, this would be a callback from your payment provider.
-    const origin = window.location.origin;
-    window.location.href = `${origin}/?pro=true`;
-  };
-
 
   return (
     <>
@@ -91,7 +43,6 @@ export default function Home() {
                     <LyricForm 
                       onSubmit={onGenerate} 
                       isLoading={isLoading} 
-                      onProFeatureClick={() => setShowProDialog(true)}
                     />
                 </CardContent>
             </Card>
@@ -124,33 +75,6 @@ export default function Home() {
           </div>
         </main>
       </div>
-
-      <AlertDialog open={showProDialog} onOpenChange={setShowProDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" />
-              Upgrade to LyricAI Pro
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Unlock advanced features like full song structure generation and priority support for just ₹150. Pay securely with PhonePe.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isUpgrading} onClick={() => window.location.href = `/?canceled=true`}>Maybe Later</AlertDialogCancel>
-            <AlertDialogAction onClick={handleUpgrade} disabled={isUpgrading}>
-              {isUpgrading ? (
-                  <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Redirecting...
-                  </>
-              ) : (
-                  'Upgrade for ₹150'
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }

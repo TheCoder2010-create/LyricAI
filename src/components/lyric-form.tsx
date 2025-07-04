@@ -22,16 +22,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Sparkles, Wand2 } from "lucide-react";
+import { Loader2, Wand2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "./ui/switch";
-import { Badge } from "./ui/badge";
 
 const formSchema = z.object({
   topic: z.string().max(200).optional(),
   genre: z.string().optional(),
   spotifyUrl: z.string().url({ message: "Please enter a valid Spotify URL." }).optional().or(z.literal('')),
-  generateStructure: z.boolean().optional(),
 }).refine(data => data.topic || data.spotifyUrl, {
   message: "Please provide either a topic or a Spotify URL.",
   path: ["topic"],
@@ -43,20 +40,18 @@ type FormData = z.infer<typeof formSchema>;
 interface LyricFormProps {
     onSubmit: (data: FormData) => void;
     isLoading: boolean;
-    onProFeatureClick: () => void;
 }
 
 const genres = [
     "Pop", "Rock", "Hip-Hop", "R&B", "Country", "Electronic", "Jazz", "Blues", "Folk", "Indie"
 ];
 
-export function LyricForm({ onSubmit, isLoading, onProFeatureClick }: LyricFormProps) {
+export function LyricForm({ onSubmit, isLoading }: LyricFormProps) {
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             topic: "",
             spotifyUrl: "",
-            generateStructure: false,
         },
     });
 
@@ -127,34 +122,6 @@ export function LyricForm({ onSubmit, isLoading, onProFeatureClick }: LyricFormP
                                 />
                             </FormControl>
                             <FormMessage />
-                        </FormItem>
-                    )}
-                />
-
-                <Separator />
-                
-                <FormField
-                    control={form.control}
-                    name="generateStructure"
-                    render={({ field }) => (
-                        <FormItem 
-                            className="flex flex-row items-center justify-between rounded-lg border p-4 cursor-pointer hover:bg-accent/50 transition-colors"
-                            onClick={onProFeatureClick}
-                        >
-                            <div className="space-y-0.5">
-                                <FormLabel className="text-base flex items-center gap-2">
-                                    Generate Full Song Structure
-                                    <Badge variant="destructive" className="bg-primary text-primary-foreground animate-in fade-in-0 zoom-in-90 duration-500">PRO</Badge>
-                                </FormLabel>
-                            </div>
-                            <FormControl>
-                                <Switch
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                    disabled
-                                    aria-readonly
-                                />
-                            </FormControl>
                         </FormItem>
                     )}
                 />
