@@ -1,6 +1,7 @@
 "use client";
 
 import { Music } from 'lucide-react';
+import SplitText from '@/components/split-text';
 
 export function Header() {
   return (
@@ -9,7 +10,23 @@ export function Header() {
         <div className="flex items-center gap-4">
           <Music className="h-8 w-8 text-primary" />
           <h1 className="font-headline text-3xl font-extrabold tracking-tight text-foreground">
-            Lyric<span className="text-primary">AI</span>
+              <SplitText
+                  text="Lyric"
+                  from={{ opacity: 0, y: 20 }}
+                  to={{ opacity: 1, y: 0 }}
+                  delay={50}
+                  duration={0.5}
+                  textAlign="left"
+              />
+              <SplitText
+                  text="AI"
+                  className="text-primary"
+                  from={{ opacity: 0, y: 20 }}
+                  to={{ opacity: 1, y: 0 }}
+                  delay={50}
+                  duration={0.5}
+                  textAlign="left"
+              />
           </h1>
         </div>
       </div>
