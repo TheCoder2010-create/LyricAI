@@ -1,21 +1,18 @@
 "use client";
 
 import { useState } from 'react';
-import { Loader2, Music, Terminal, Wand2 } from 'lucide-react';
+import { Loader2, Terminal, Wand2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { handleGenerateLyrics, type LyricGenerationResult } from '@/app/actions';
 import { LyricForm } from '@/components/lyric-form';
 import { LyricDisplay } from '@/components/lyric-display';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import type { GenerateLyricsInput } from '@/ai/flows/lyric-generation';
-import { useAuth } from '@/hooks/use-auth';
 import { Header } from '@/components/header';
-import { Button } from '@/components/ui/button';
 
 export default function Home() {
   const [result, setResult] = useState<LyricGenerationResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { user, loading, signInWithGoogle, isFirebaseEnabled } = useAuth();
 
   const onGenerate = async (data: GenerateLyricsInput) => {
     setIsLoading(true);
@@ -24,87 +21,6 @@ export default function Home() {
     setResult(generationResult);
     setIsLoading(false);
   };
-
-  const renderContent = () => {
-    if (loading) {
-      return (
-        <div className="flex justify-center items-center h-64">
-          <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        </div>
-      );
-    }
-
-    if (!user) {
-      return (
-        <Card className="w-full shadow-2xl border-primary/20 bg-card/80 backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-500">
-          <CardHeader>
-            <CardTitle className="font-headline text-2xl text-center flex items-center justify-center gap-2">
-              Welcome to LyricAI
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-center space-y-4">
-            <p className="text-muted-foreground">Please sign in to start creating your own song lyrics.</p>
-            <Button onClick={signInWithGoogle} size="lg" disabled={!isFirebaseEnabled}>
-              <Wand2 className="mr-2 h-5 w-5" />
-              Sign In to Get Started
-            </Button>
-            {!isFirebaseEnabled && (
-                <Alert variant="destructive" className="mt-4 text-left">
-                    <Terminal className="h-4 w-4" />
-                    <AlertTitle>Authentication Not Configured</AlertTitle>
-                    <AlertDescription>
-                        <p>Sign-in is disabled because Firebase is not configured.</p>
-                        <p className="mt-2 text-xs">Please add your Firebase project credentials to the <code>.env</code> file to enable authentication.</p>
-                    </AlertDescription>
-                </Alert>
-            )}
-          </CardContent>
-        </Card>
-      );
-    }
-
-    return (
-      <>
-        <Card className="w-full shadow-2xl border-primary/20 bg-card/80 backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-500">
-            <CardHeader>
-                <CardTitle className="font-headline text-2xl text-center flex items-center justify-center gap-2">
-                  <Wand2 className="h-6 w-6 text-primary" />
-                  Create Your Song
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <LyricForm onSubmit={onGenerate} isLoading={isLoading} />
-            </CardContent>
-        </Card>
-
-        {isLoading && (
-            <Card className="w-full shadow-2xl border-primary/20 bg-card/80 backdrop-blur-xl animate-in fade-in-0 duration-500">
-              <CardContent className="p-8">
-                <div className="flex w-full flex-col items-center justify-center gap-4 text-center">
-                    <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                    <p className="text-xl font-bold text-foreground">Generating your masterpiece...</p>
-                    <p className="text-md text-muted-foreground">The AI is warming up. This might take a moment.</p>
-                </div>
-              </CardContent>
-            </Card>
-        )}
-
-        {result?.error && (
-             <Alert variant="destructive" className="animate-in fade-in-0 duration-500">
-                <Terminal className="h-4 w-4" />
-                <AlertTitle>Uh oh! Something went wrong.</AlertTitle>
-                <AlertDescription>
-                    {result.error}
-                </AlertDescription>
-            </Alert>
-        )}
-
-        {result?.lyrics && (
-            <LyricDisplay lyrics={result.lyrics} />
-        )}
-      </>
-    );
-  }
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -115,7 +31,43 @@ export default function Home() {
           aria-hidden="true"
         />
         <div className="mx-auto w-full max-w-2xl space-y-8">
-          {renderContent()}
+          <Card className="w-full shadow-2xl border-primary/20 bg-card/80 backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-500">
+              <CardHeader>
+                  <CardTitle className="font-headline text-2xl text-center flex items-center justify-center gap-2">
+                    <Wand2 className="h-6 w-6 text-primary" />
+                    Create Your Song
+                  </CardTitle>
+              </CardHeader>
+              <CardContent>
+                  <LyricForm onSubmit={onGenerate} isLoading={isLoading} />
+              </CardContent>
+          </Card>
+
+          {isLoading && (
+              <Card className="w-full shadow-2xl border-primary/20 bg-card/80 backdrop-blur-xl animate-in fade-in-0 duration-500">
+                <CardContent className="p-8">
+                  <div className="flex w-full flex-col items-center justify-center gap-4 text-center">
+                      <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                      <p className="text-xl font-bold text-foreground">Generating your masterpiece...</p>
+                      <p className="text-md text-muted-foreground">The AI is warming up. This might take a moment.</p>
+                  </div>
+                </CardContent>
+              </Card>
+          )}
+
+          {result?.error && (
+               <Alert variant="destructive" className="animate-in fade-in-0 duration-500">
+                  <Terminal className="h-4 w-4" />
+                  <AlertTitle>Uh oh! Something went wrong.</AlertTitle>
+                  <AlertDescription>
+                      {result.error}
+                  </AlertDescription>
+              </Alert>
+          )}
+
+          {result?.lyrics && (
+              <LyricDisplay lyrics={result.lyrics} />
+          )}
         </div>
       </main>
     </div>
