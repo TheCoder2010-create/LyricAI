@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Loader2, Terminal, Wand2 } from 'lucide-react';
+import { Loader2, Terminal, Wand2, Star, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   handleGenerateLyrics,
@@ -15,6 +15,17 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import type { GenerateLyricsInput } from '@/ai/flows/lyric-generation';
 import { Header } from '@/components/header';
 import { AlbumArtCreator } from '@/components/album-art-creator';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export default function Home() {
   const [result, setResult] = useState<LyricGenerationResult | null>(null);
@@ -27,22 +38,26 @@ export default function Home() {
     lyrics?: string;
     genre?: string;
     topic?: string;
+    analysis?: string;
   }>({});
   const [selectedVoice, setSelectedVoice] = useState('Algenib');
 
-  // New state for album art
   const [albumArtResult, setAlbumArtResult] = useState<{
     dataUri?: string;
     error?: string;
   }>({});
   const [isGeneratingArt, setIsGeneratingArt] = useState(false);
 
+  // Monetization state
+  const [isPro, setIsPro] = useState(false);
+  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
+
   const onGenerate = async (data: GenerateLyricsInput) => {
     setIsLoading(true);
     setResult(null);
     setAudioDataUri(undefined);
     setSongContext({});
-    setAlbumArtResult({}); // Reset album art on new song
+    setAlbumArtResult({}); 
 
     const generationResult = await handleGenerateLyrics(data);
     setResult(generationResult);
@@ -51,6 +66,7 @@ export default function Home() {
         lyrics: generationResult.lyrics,
         genre: generationResult.genre,
         topic: data.topic,
+        analysis: generationResult.analysis,
       });
     }
     setIsLoading(false);
@@ -58,7 +74,7 @@ export default function Home() {
 
   const onGenerateAcapella = async (lyrics: string) => {
     setIsGeneratingAcapella(true);
-    setResult({ ...result, error: undefined }); // Clear previous errors
+    setResult({ ...result, error: undefined }); 
     const acapellaResult = await handleGenerateAcapella({
       lyrics,
       voice: selectedVoice,
@@ -67,20 +83,19 @@ export default function Home() {
       setAudioDataUri(acapellaResult.audioDataUri);
     }
     if (acapellaResult.error) {
-      setResult({ lyrics: songContext.lyrics, error: acapellaResult.error });
+      setResult({ ...songContext, error: acapellaResult.error });
     }
     setIsGeneratingAcapella(false);
   };
 
   const onGenerateAlbumArt = async (imageDataUri: string) => {
     if (!songContext.topic && !songContext.genre) {
-      // Use main error display for this
       setResult({ ...result, error: 'Cannot generate art without song context (topic or genre).' });
       return;
     }
     setIsGeneratingArt(true);
     setAlbumArtResult({});
-    setResult({ ...result, error: undefined }); // Clear previous errors
+    setResult({ ...result, error: undefined }); 
 
     const prompt = `A song about ${songContext.topic || 'an unknown topic'} in the ${songContext.genre || 'general pop'} style.`;
     
@@ -95,10 +110,15 @@ export default function Home() {
     setIsGeneratingArt(false);
   };
 
+  const handleUpgrade = () => {
+    setIsPro(true);
+    setShowUpgradeDialog(false);
+  };
+
   return (
     <>
       <div className="flex flex-col min-h-screen bg-background">
-        <Header />
+        <Header isPro={isPro} onUpgradeClick={() => setShowUpgradeDialog(true)}/>
         <main className="relative flex flex-grow flex-col items-center justify-start pt-12 pb-24 overflow-y-auto px-4 sm:px-6 lg:px-8">
           <div
             className="absolute inset-0 -z-10 h-full w-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] dark:bg-[radial-gradient(#ffffff2e_1px,transparent_1px)]"
@@ -113,7 +133,12 @@ export default function Home() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <LyricForm onSubmit={onGenerate} isLoading={isLoading} />
+                <LyricForm 
+                  onSubmit={onGenerate} 
+                  isLoading={isLoading} 
+                  isPro={isPro}
+                  onUpgradeClick={() => setShowUpgradeDialog(true)}
+                />
               </CardContent>
             </Card>
 
@@ -148,22 +173,52 @@ export default function Home() {
               <>
               <LyricDisplay
                 lyrics={result.lyrics}
+                analysis={result.analysis}
                 audioDataUri={audioDataUri}
                 onGenerateAcapella={onGenerateAcapella}
                 isGeneratingAcapella={isGeneratingAcapella}
                 selectedVoice={selectedVoice}
                 onVoiceChange={setSelectedVoice}
+                isPro={isPro}
+                onUpgradeClick={() => setShowUpgradeDialog(true)}
               />
               <AlbumArtCreator 
                 onGenerate={onGenerateAlbumArt}
                 isGenerating={isGeneratingArt}
                 result={albumArtResult}
+                isPro={isPro}
+                onUpgradeClick={() => setShowUpgradeDialog(true)}
               />
               </>
             )}
           </div>
         </main>
       </div>
+
+      <AlertDialog open={showUpgradeDialog} onOpenChange={setShowUpgradeDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-2xl">
+              <Sparkles className="h-6 w-6 text-yellow-400" />
+              Upgrade to LyricAI Pro
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-base pt-4">
+              Unlock powerful features to take your songwriting to the next level:
+              <ul className="list-disc pl-5 mt-4 space-y-2">
+                <li><span className="font-bold">AI Album Art Generator:</span> Turn your photos into unique album covers.</li>
+                <li><span className="font-bold">Spotify Song Inspiration:</span> Get lyric ideas from your favorite tracks.</li>
+                <li><span className="font-bold">AI Songwriting Coach:</span> Receive analysis on your song's structure and theme.</li>
+              </ul>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Maybe Later</AlertDialogCancel>
+            <AlertDialogAction onClick={handleUpgrade} className="bg-primary hover:bg-primary/90">
+              Upgrade Now
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

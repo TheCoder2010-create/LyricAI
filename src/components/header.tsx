@@ -1,9 +1,16 @@
 "use client";
 
-import { Music } from 'lucide-react';
+import { Music, Sparkles } from 'lucide-react';
 import SplitText from '@/components/split-text';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
 
-export function Header() {
+interface HeaderProps {
+  isPro: boolean;
+  onUpgradeClick: () => void;
+}
+
+export function Header({ isPro, onUpgradeClick }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 max-w-4xl items-center justify-between">
@@ -28,6 +35,19 @@ export function Header() {
                   textAlign="left"
               />
           </h1>
+        </div>
+        <div className="flex items-center gap-4">
+          {isPro ? (
+            <Badge variant="default" className="border-yellow-400/50 bg-yellow-400/10 text-yellow-300">
+              <Sparkles className="mr-2 h-4 w-4 text-yellow-400" />
+              Pro Plan
+            </Badge>
+          ) : (
+            <Button onClick={onUpgradeClick}>
+              <Sparkles className="mr-2 h-4 w-4" />
+              Upgrade to Pro
+            </Button>
+          )}
         </div>
       </div>
     </header>

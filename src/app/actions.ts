@@ -3,6 +3,7 @@
 import {
   generateLyrics,
   type GenerateLyricsInput,
+  type GenerateLyricsOutput,
 } from '@/ai/flows/lyric-generation';
 import { generateAudio, type GenerateAudioInput } from '@/ai/flows/tts-flow';
 import {
@@ -13,6 +14,7 @@ import {
 export type LyricGenerationResult = {
   lyrics?: string;
   genre?: string;
+  analysis?: string;
   error?: string;
 };
 
@@ -36,12 +38,16 @@ export async function handleGenerateLyrics(
       delete inputData.spotifyUrl;
     }
 
-    const lyricResult = await generateLyrics(inputData);
+    const lyricResult: GenerateLyricsOutput = await generateLyrics(inputData);
     if (!lyricResult.lyrics) {
       return { error: 'Failed to generate lyrics. The result was empty.' };
     }
 
-    return { lyrics: lyricResult.lyrics, genre: lyricResult.genre };
+    return { 
+      lyrics: lyricResult.lyrics, 
+      genre: lyricResult.genre,
+      analysis: lyricResult.analysis 
+    };
   } catch (e) {
     console.error(e);
     const errorMessage =

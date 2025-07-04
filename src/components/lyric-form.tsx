@@ -22,8 +22,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Wand2 } from "lucide-react";
+import { Loader2, Wand2, Lock, Sparkles } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 
 const formSchema = z.object({
   topic: z.string().max(200).optional(),
@@ -42,6 +43,8 @@ type FormData = z.infer<typeof formSchema>;
 interface LyricFormProps {
     onSubmit: (data: FormData) => void;
     isLoading: boolean;
+    isPro: boolean;
+    onUpgradeClick: () => void;
 }
 
 const genres = [
@@ -72,7 +75,7 @@ const singers = [
 ];
 
 
-export function LyricForm({ onSubmit, isLoading }: LyricFormProps) {
+export function LyricForm({ onSubmit, isLoading, isPro, onUpgradeClick }: LyricFormProps) {
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -186,14 +189,39 @@ export function LyricForm({ onSubmit, isLoading }: LyricFormProps) {
                     name="spotifyUrl"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Get inspiration from a song</FormLabel>
-                            <FormControl>
-                                <Input 
-                                    placeholder="Paste a Spotify song URL..."
-                                    {...field}
-                                    disabled={!!watchTopic}
-                                />
-                            </FormControl>
+                            <FormLabel className="flex items-center gap-2">
+                                Get inspiration from a song
+                                {!isPro && <Badge variant="destructive" className="bg-yellow-400/20 text-yellow-300 border-none">Pro</Badge>}
+                            </FormLabel>
+                             <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="relative">
+                                            <FormControl>
+                                                <Input 
+                                                    placeholder="Paste a Spotify song URL..."
+                                                    {...field}
+                                                    disabled={!!watchTopic || !isPro}
+                                                    className={!isPro ? "cursor-not-allowed" : ""}
+                                                />
+                                            </FormControl>
+                                            {!isPro && (
+                                                <div onClick={onUpgradeClick} className="absolute inset-0 bg-background/80 flex items-center justify-center rounded-md cursor-pointer">
+                                                    <div className="flex items-center gap-2 font-semibold text-foreground">
+                                                        <Lock className="h-4 w-4"/>
+                                                        <span>Upgrade to Pro to use Spotify links</span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </TooltipTrigger>
+                                    {!!watchTopic && (
+                                    <TooltipContent>
+                                        <p>Clear the topic field to use a Spotify URL.</p>
+                                    </TooltipContent>
+                                    )}
+                                </Tooltip>
+                            </TooltipProvider>
                             <FormMessage />
                         </FormItem>
                     )}

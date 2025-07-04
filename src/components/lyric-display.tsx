@@ -3,19 +3,23 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, Copy, Loader2, Mic } from "lucide-react";
+import { Check, Copy, Loader2, Mic, Lightbulb, Lock, Sparkles } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import { WaveformAudioPlayer } from "./waveform-audio-player";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Separator } from "./ui/separator";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 
 interface LyricDisplayProps {
   lyrics: string;
+  analysis?: string;
   audioDataUri?: string;
   onGenerateAcapella: (lyrics: string) => void;
   isGeneratingAcapella: boolean;
   selectedVoice: string;
   onVoiceChange: (voice: string) => void;
+  isPro: boolean;
+  onUpgradeClick: () => void;
 }
 
 const voices = [
@@ -28,11 +32,14 @@ const voices = [
 
 export function LyricDisplay({
   lyrics,
+  analysis,
   audioDataUri,
   onGenerateAcapella,
   isGeneratingAcapella,
   selectedVoice,
   onVoiceChange,
+  isPro,
+  onUpgradeClick,
 }: LyricDisplayProps) {
   const [hasCopied, setHasCopied] = useState(false);
 
@@ -136,6 +143,35 @@ export function LyricDisplay({
         </div>
 
         <Separator className="my-6"/>
+
+        {analysis && (
+          <div className="mb-6">
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="item-1">
+                <AccordionTrigger>
+                  <div className="flex items-center gap-2">
+                    <Lightbulb className="h-5 w-5 text-yellow-400" />
+                    AI Songwriting Coach
+                    {!isPro && <Lock className="h-4 w-4 text-muted-foreground"/>}
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  {isPro ? (
+                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{analysis}</p>
+                  ) : (
+                    <div className="text-center p-4 rounded-md bg-muted/30">
+                      <p className="text-muted-foreground mb-4">Upgrade to Pro to unlock your personal AI songwriting analysis.</p>
+                      <Button onClick={onUpgradeClick} size="sm">
+                        <Sparkles className="mr-2 h-4 w-4"/>
+                        Upgrade Now
+                      </Button>
+                    </div>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        )}
 
         <ScrollArea className="h-[40vh] pr-4">
           <div className="whitespace-pre-wrap font-body text-base md:text-lg leading-relaxed text-foreground/90">

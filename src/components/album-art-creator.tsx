@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Camera, Download, Loader2, Sparkles, Wand2 } from 'lucide-react';
+import { Camera, Download, Loader2, Sparkles, Wand2, Lock } from 'lucide-react';
 import Image from 'next/image';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 
@@ -14,9 +14,11 @@ interface AlbumArtCreatorProps {
     dataUri?: string;
     error?: string;
   };
+  isPro: boolean;
+  onUpgradeClick: () => void;
 }
 
-export function AlbumArtCreator({ onGenerate, isGenerating, result }: AlbumArtCreatorProps) {
+export function AlbumArtCreator({ onGenerate, isGenerating, result, isPro, onUpgradeClick }: AlbumArtCreatorProps) {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -44,6 +46,30 @@ export function AlbumArtCreator({ onGenerate, isGenerating, result }: AlbumArtCr
       onGenerate(uploadedImage);
     }
   };
+
+  if (!isPro) {
+    return (
+      <Card className="w-full animate-in fade-in-0 slide-in-from-bottom-10 duration-700 ease-out shadow-2xl border border-primary/20 bg-card/60 backdrop-blur-xl">
+        <CardHeader>
+          <CardTitle className="font-headline text-2xl flex items-center gap-2">
+            <Sparkles className="h-6 w-6 text-primary" />
+            Create Your Album Art
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-center">
+            <div className="flex flex-col items-center justify-center p-8 bg-muted/30 rounded-lg">
+                <Lock className="h-12 w-12 text-primary/50 mb-4" />
+                <h3 className="text-xl font-bold mb-2">This is a Pro Feature</h3>
+                <p className="text-muted-foreground mb-6">Upgrade to LyricAI Pro to turn your images into unique album art.</p>
+                <Button onClick={onUpgradeClick}>
+                    <Sparkles className="mr-2 h-5 w-5" />
+                    Upgrade to Pro
+                </Button>
+            </div>
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
     <Card className="w-full animate-in fade-in-0 slide-in-from-bottom-10 duration-700 ease-out shadow-2xl border border-primary/20 bg-card/60 backdrop-blur-xl">

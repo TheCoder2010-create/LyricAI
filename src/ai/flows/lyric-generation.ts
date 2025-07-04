@@ -24,6 +24,7 @@ export type GenerateLyricsInput = z.infer<typeof GenerateLyricsInputSchema>;
 const GenerateLyricsOutputSchema = z.object({
   lyrics: z.string().describe('The generated song lyrics.'),
   genre: z.string().describe("The resolved genre of the song. If a genre was provided in the request, use that. If a Spotify URL was used, use the genre returned by the tool."),
+  analysis: z.string().describe("A brief analysis of the song's structure, theme, and mood, as if written by a songwriting coach."),
 });
 export type GenerateLyricsOutput = z.infer<typeof GenerateLyricsOutputSchema>;
 
@@ -58,7 +59,12 @@ const prompt = ai.definePrompt({
   {{#if genre}}Genre: {{{genre}}}{{/if}}
   {{#if inspiredBy}}Inspired by the style of: {{{inspiredBy}}}{{/if}}
   
-  Lyrics:`,
+  Lyrics:
+  
+  ---
+  
+  After generating the lyrics, provide a brief, insightful analysis of the song you've written. Act as a songwriting coach, explaining the structure (e.g., AABA, verse-chorus), the core theme, and the mood.
+  Analysis:`,
 });
 
 const generateLyricsFlow = ai.defineFlow(
