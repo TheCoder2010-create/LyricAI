@@ -15,6 +15,7 @@ import { searchSpotifyTool } from '@/ai/tools/spotify';
 const GenerateLyricsInputSchema = z.object({
   topic: z.string().describe('The topic of the song lyrics.').optional(),
   genre: z.string().describe('The preferred music genre for the song lyrics.').optional(),
+  language: z.string().describe('The language for the song lyrics.').optional(),
   spotifyUrl: z.string().url('Please provide a valid Spotify URL.').describe('A spotify URL to a song to use as inspiration.').optional(),
 });
 export type GenerateLyricsInput = z.infer<typeof GenerateLyricsInputSchema>;
@@ -47,6 +48,8 @@ const prompt = ai.definePrompt({
   If the user provides a Spotify URL, you MUST use the searchSpotify tool to get details about the song and use that as inspiration for the topic, genre, and style of the lyrics.
   
   If they provide a topic and genre directly, use those.
+
+  {{#if language}}Write the lyrics in {{{language}}}.{{/if}}
 
   User Request:
   {{#if spotifyUrl}}Spotify URL: {{{spotifyUrl}}}{{/if}}

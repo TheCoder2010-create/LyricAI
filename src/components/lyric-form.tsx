@@ -28,6 +28,7 @@ import { Separator } from "@/components/ui/separator";
 const formSchema = z.object({
   topic: z.string().max(200).optional(),
   genre: z.string().optional(),
+  language: z.string().optional(),
   spotifyUrl: z.string().url({ message: "Please enter a valid Spotify URL." }).optional().or(z.literal('')),
 }).refine(data => data.topic || data.spotifyUrl, {
   message: "Please provide either a topic or a Spotify URL.",
@@ -46,12 +47,17 @@ const genres = [
     "Pop", "Rock", "Hip-Hop", "R&B", "Country", "Electronic", "Jazz", "Blues", "Folk", "Indie"
 ];
 
+const languages = [
+    "English", "Spanish", "French", "German", "Italian", "Portuguese", "Dutch", "Hindi", "Japanese", "Korean", "Mandarin"
+];
+
 export function LyricForm({ onSubmit, isLoading }: LyricFormProps) {
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             topic: "",
             spotifyUrl: "",
+            language: "English",
         },
     });
 
@@ -94,6 +100,29 @@ export function LyricForm({ onSubmit, isLoading }: LyricFormProps) {
                                 <SelectContent>
                                     {genres.map(genre => (
                                         <SelectItem key={genre} value={genre}>{genre}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="language"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Language</FormLabel>
+                             <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!!watchSpotifyUrl}>
+                                <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a language" />
+                                </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    {languages.map(lang => (
+                                        <SelectItem key={lang} value={lang}>{lang}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
