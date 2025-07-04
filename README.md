@@ -2,7 +2,7 @@
 
 ## Description
 
-LyricAI is a web application built within the Firebase Studio NextJS starter environment. Its core functionality revolves around leveraging AI to generate lyrics, create accompanying album art, and provide text-to-speech capabilities for the generated lyrics. The application features a modern user interface styled with Tailwind CSS.
+LyricAI is a web application built within the NextJS starter environment. Its core functionality revolves around leveraging AI to generate lyrics, create accompanying album art, and provide text-to-speech capabilities for the generated lyrics. The application features a modern user interface styled with Tailwind CSS.
 
 ## Features
 
@@ -14,7 +14,8 @@ LyricAI is a web application built within the Firebase Studio NextJS starter env
 ## Technologies Used
 
 * **Next.js:** A React framework for server-side rendering and static site generation.
-* **Firebase Studio:** The development environment used for building and deploying the application.
+* **Firebase Studio:** The development envi![ai](https://github.com/user-attachments/assets/6f54953c-3c5a-4a63-b721-64315583a395)
+ronment used for building and deploying the application.
 * **Tailwind CSS:** A utility-first CSS framework for rapid UI development.
 * **Zod:** A TypeScript-first schema declaration and validation library used for data validation.
 
