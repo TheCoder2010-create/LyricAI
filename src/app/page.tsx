@@ -1,18 +1,19 @@
 "use client";
 
 import { useState } from 'react';
-import { Loader2, Terminal, Wand2 } from 'lucide-react';
+import { Loader2, Music, Terminal, Wand2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { handleGenerateLyrics, type LyricGenerationResult } from '@/app/actions';
 import { LyricForm } from '@/components/lyric-form';
 import { LyricDisplay } from '@/components/lyric-display';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import type { GenerateLyricsInput } from '@/ai/flows/lyric-generation';
 
 export default function Home() {
   const [result, setResult] = useState<LyricGenerationResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const onGenerate = async (data: { topic: string; genre: string }) => {
+  const onGenerate = async (data: GenerateLyricsInput) => {
     setIsLoading(true);
     setResult(null);
     const generationResult = await handleGenerateLyrics(data);
@@ -23,27 +24,24 @@ export default function Home() {
   return (
     <main className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-background px-4 py-12 sm:px-6 lg:px-8">
       <div
-        className="absolute top-1/2 left-1/2 -z-10 h-[40rem] w-[40rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute top-1/2 left-1/2 -z-10 h-[30rem] w-[50rem] -translate-x-1/4 -translate-y-3/4 rounded-full bg-accent/10 blur-3xl"
+        className="absolute inset-0 -z-10 h-full w-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] dark:bg-[radial-gradient(#ffffff2e_1px,transparent_1px)]"
         aria-hidden="true"
       />
       
       <div className="mx-auto w-full max-w-2xl space-y-8">
         <div className="text-center">
           <div className="flex justify-center items-center gap-4 mb-4">
+            <Music className="h-12 w-12 text-primary" />
             <h1 className="font-headline text-5xl font-extrabold tracking-tight text-foreground sm:text-6xl md:text-7xl">
               Lyric<span className="text-primary">AI</span>
             </h1>
           </div>
           <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-            Craft original lyrics in seconds. Your next hit song starts here.
+            Craft original lyrics from a topic or get inspired by your favorite songs.
           </p>
         </div>
 
-        <Card className="w-full shadow-2xl border border-primary/20 bg-card/60 backdrop-blur-xl">
+        <Card className="w-full shadow-2xl border-primary/20 bg-card/80 backdrop-blur-xl">
             <CardHeader>
                 <CardTitle className="font-headline text-2xl text-center flex items-center justify-center gap-2">
                   <Wand2 className="h-6 w-6 text-primary" />
@@ -56,7 +54,7 @@ export default function Home() {
         </Card>
 
         {isLoading && (
-            <Card className="w-full shadow-2xl border border-primary/20 bg-card/60 backdrop-blur-xl">
+            <Card className="w-full shadow-2xl border-primary/20 bg-card/80 backdrop-blur-xl">
               <CardContent className="p-8">
                 <div className="flex w-full flex-col items-center justify-center gap-4 text-center">
                     <Loader2 className="h-12 w-12 animate-spin text-primary" />

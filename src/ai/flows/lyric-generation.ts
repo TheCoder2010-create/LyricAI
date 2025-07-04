@@ -10,10 +10,12 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { searchSpotifyTool } from '@/ai/tools/spotify';
 
 const GenerateLyricsInputSchema = z.object({
-  topic: z.string().describe('The topic of the song lyrics.'),
-  genre: z.string().describe('The preferred music genre for the song lyrics.'),
+  topic: z.string().describe('The topic of the song lyrics.').optional(),
+  genre: z.string().describe('The preferred music genre for the song lyrics.').optional(),
+  spotifyUrl: z.string().url('Please provide a valid Spotify URL.').describe('A spotify URL to a song to use as inspiration.').optional(),
 });
 export type GenerateLyricsInput = z.infer<typeof GenerateLyricsInputSchema>;
 
@@ -30,7 +32,21 @@ const prompt = ai.definePrompt({
   name: 'generateLyricsPrompt',
   input: {schema: GenerateLyricsInputSchema},
   output: {schema: GenerateLyricsOutputSchema},
-  prompt: `You are a song lyric generator. Generate song lyrics based on the given topic and genre.\n\nTopic: {{{topic}}}\nGenre: {{{genre}}}\n\nLyrics:`,
+  tools: [searchSpotifyTool],
+  prompt: `You are a song lyric generator. 
+  
+  Generate song lyrics based on the user's request. 
+  
+  If the user provides a Spotify URL, you MUST use the searchSpotify tool to get details about the song and use that as inspiration for the topic, genre, and style of the lyrics.
+  
+  If they provide a topic and genre directly, use those.
+
+  User Request:
+  {{#if spotifyUrl}}Spotify URL: {{{spotifyUrl}}}{{/if}}
+  {{#if topic}}Topic: {{{topic}}}{{/if}}
+  {{#if genre}}Genre: {{{genre}}}{{/if}}
+  
+  Lyrics:`,
 });
 
 const generateLyricsFlow = ai.defineFlow(

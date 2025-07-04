@@ -14,6 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import {
     Select,
     SelectContent,
@@ -22,17 +23,17 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Loader2, Wand2 } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 const formSchema = z.object({
-  topic: z.string().min(3, {
-    message: "Topic must be at least 3 characters.",
-  }).max(200, {
-    message: "Topic must not be longer than 200 characters.",
-  }),
-  genre: z.string({
-    required_error: "Please select a genre.",
-  }),
+  topic: z.string().max(200).optional(),
+  genre: z.string().optional(),
+  spotifyUrl: z.string().url({ message: "Please enter a valid Spotify URL." }).optional().or(z.literal('')),
+}).refine(data => data.topic || data.spotifyUrl, {
+  message: "Please provide either a topic or a Spotify URL.",
+  path: ["topic"],
 });
+
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -50,8 +51,12 @@ export function LyricForm({ onSubmit, isLoading }: LyricFormProps) {
         resolver: zodResolver(formSchema),
         defaultValues: {
             topic: "",
+            spotifyUrl: "",
         },
     });
+
+    const watchSpotifyUrl = form.watch("spotifyUrl");
+    const watchTopic = form.watch("topic");
 
     return (
         <Form {...form}>
@@ -66,7 +71,8 @@ export function LyricForm({ onSubmit, isLoading }: LyricFormProps) {
                                 <Textarea 
                                     placeholder="e.g., A road trip with friends, a lost love, finding a stray cat..." 
                                     className="resize-none"
-                                    {...field} 
+                                    {...field}
+                                    disabled={!!watchSpotifyUrl} 
                                 />
                             </FormControl>
                             <FormMessage />
@@ -78,8 +84,8 @@ export function LyricForm({ onSubmit, isLoading }: LyricFormProps) {
                     name="genre"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Music Genre</FormLabel>
-                             <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormLabel>Music Genre <span className="text-muted-foreground/80">(Optional if using Spotify URL)</span></FormLabel>
+                             <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!!watchSpotifyUrl}>
                                 <FormControl>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select a genre" />
@@ -95,6 +101,31 @@ export function LyricForm({ onSubmit, isLoading }: LyricFormProps) {
                         </FormItem>
                     )}
                 />
+
+                <div className="flex items-center space-x-4">
+                    <Separator className="flex-1" />
+                    <span className="text-xs font-medium text-muted-foreground">OR</span>
+                    <Separator className="flex-1" />
+                </div>
+
+                <FormField
+                    control={form.control}
+                    name="spotifyUrl"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Get inspiration from a song</FormLabel>
+                            <FormControl>
+                                <Input 
+                                    placeholder="Paste a Spotify song URL..."
+                                    {...field}
+                                    disabled={!!watchTopic}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                
                 <Button type="submit" disabled={isLoading} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg py-6">
                     {isLoading ? (
                         <>
